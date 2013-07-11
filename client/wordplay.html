@@ -16,6 +16,7 @@
       {{> scratchpad }}
       {{> postgame }}
       {{> scores }}
+      {{> unusedWords}}
     </div>
   </div>
 </template>
@@ -132,5 +133,19 @@
       {{word}}
     </div>
     {{/each}}
+  </div>
+</template>
+
+<template name="unusedWords">
+  <div>
+    {{#if show}}
+      <div class="unusedWords">
+        {{#each unusedWords}}
+        <div>
+          {{this}}
+        </div>
+        {{/each}}
+      </div>
+    {{/if}}
   </div>
 </template>

@@ -18,7 +18,7 @@ var DICE = ['PCHOAS', 'OATTOW', 'LRYTTE', 'VTHRWE',
 
 // board is an array of length 16, in row-major order.  ADJACENCIES
 // lists the board positions adjacent to each board position.
-var ADJACENCIES = [
+ADJACENCIES = [
   [1,4,5],
   [0,2,4,5,6],
   [1,3,5,6,7],

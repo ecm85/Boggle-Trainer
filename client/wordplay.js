@@ -115,8 +115,16 @@ Template.board.clock = function () {
 Template.board.events({
   'click .square': function (evt) {
     var textbox = $('#scratchpad input');
+    alert('hit square function')
     textbox.val(textbox.val() + evt.target.innerHTML);
+    set_selected_positions(textbox.val());
     textbox.focus();
+  }
+});
+
+Template.board.events({
+  'click .in_path': function (evt) {
+    alert('hit selected function')
   }
 });
 
@@ -158,6 +166,14 @@ Template.postgame.events({
     Players.update(Session.get('player_id'), {$set: {game_id: null}});
   }
 });
+
+Template.unusedWords.show = function () {
+  return game() && game().clock === 0;
+}
+
+Template.unusedWords.unusedWords = function () {
+  return game().validWords;
+}
 
 //////
 ////// scores shows everyone's score and word list.

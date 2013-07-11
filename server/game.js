@@ -1,10 +1,49 @@
 ////////// Server only logic //////////
 
+get_All_Words = function(board){
+  if (Meteor.isServer) {
+    foundWords = [];
+    for(var index = 0; index < board.length; ++index){
+      dfs([index], ADJACENCIES[index], foundWords, board);
+    }
+    //return _.intersection(foundWords, DICTIONARY);
+    return _(foundWords).filter(function(word){return binarySearch(DICTIONARY, word);});
+  }
+};
+
+dfs = function(visited, neighbors, foundWords, board){
+  if (visited.length > 2){
+    foundWords.push(_(visited).reduce(function(word, index){return word + board[index]}, "").toLowerCase());
+  }
+  for(var index = 0; index < neighbors.length; index++){
+    var neighbor = neighbors[index];
+    var neighborsNeighbors = _(ADJACENCIES[neighbor]).without(updatedVisited);
+    if (_(neighborsNeighbors).some() && visited.length < 5){
+      var updatedVisited = visited.slice()
+      updatedVisited.push(neighbor)
+      dfs(updatedVisited, neighborsNeighbors, foundWords, board)
+    }
+  }
+};
+
+binarySearch = function(arr, find) {
+  var low = 0, high = arr.length - 1,
+      i, comparison;
+  while (low <= high) {
+    i = Math.floor((low + high) / 2);
+    if (arr[i] < find) { low = i + 1; continue; };
+    if (arr[i] > find) { high = i - 1; continue; };
+    return i;
+  }
+  return null;
+};
+
 Meteor.methods({
   start_new_game: function () {
     // create a new game w/ fresh board
-    var game_id = Games.insert({board: new_board(),
-                                clock: 120});
+    var board = new_board();
+    var game_id = Games.insert({board: board,
+                                clock: 25});
 
     // move everyone who is ready in the lobby to the game
     Players.update({game_id: null, idle: false, name: {$ne: ''}},
@@ -18,7 +57,7 @@ Meteor.methods({
 
 
     // wind down the game clock
-    var clock = 120;
+    var clock = 25;
     var interval = Meteor.setInterval(function () {
       clock -= 1;
       Games.update(game_id, {$set: {clock: clock}});
@@ -40,7 +79,9 @@ Meteor.methods({
           if (score === high_score)
             winners.push(player_id);
         });
+        var validWords = get_All_Words(board)
         Games.update(game_id, {$set: {winners: winners}});
+        Games.update(game_id, {$set: {validWords: validWords}})
       }
     }, 1000);
 
